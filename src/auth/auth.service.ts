@@ -1,10 +1,13 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { CreateUserDto } from "src/users/dto/create-user.dto";
-import { UsersService } from "src/users/users.service";
-import { JwtService } from "@nestjs/jwt";
-import { ConfigService } from "@nestjs/config";
-import { AuthDto } from "./dto/auth.dto";
-import { comparePassword, hashPassword } from "src/shared/helpers/password.helper";
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { UsersService } from 'src/users/users.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { AuthDto } from './dto/auth.dto';
+import {
+  comparePassword,
+  hashPassword,
+} from 'src/shared/helpers/password.helper';
 
 @Injectable()
 export class AuthService {
@@ -18,9 +21,11 @@ export class AuthService {
 
   async signUp(createUserDto: CreateUserDto): Promise<any> {
     // Check if user exists
-    const userExists = await this.usersService.findByUsername(createUserDto.username);
+    const userExists = await this.usersService.findByUsername(
+      createUserDto.username,
+    );
     if (userExists) {
-      throw new BadRequestException("User already exists");
+      throw new BadRequestException('User already exists');
     }
 
     // Hash password
@@ -37,9 +42,10 @@ export class AuthService {
   async signIn(data: AuthDto) {
     // Check if user exists
     const user = await this.usersService.findByUsername(data.username);
-    if (!user) throw new BadRequestException("User does not exist");
+    if (!user) throw new BadRequestException('User does not exist');
     const passwordMatches = await comparePassword(data.password, user.password);
-    if (!passwordMatches) throw new BadRequestException("Password is incorrect");
+    if (!passwordMatches)
+      throw new BadRequestException('Password is incorrect');
     const tokens = await this.getTokens(user._id, user.username);
     await this.updateRefreshToken(user._id, tokens.refreshToken);
     return tokens;
@@ -64,8 +70,8 @@ export class AuthService {
           username,
         },
         {
-          secret: this.configService.get<string>("JWT_SECRET"),
-          expiresIn: this.configService.get<string>("JWT_EXPIRES_IN"),
+          secret: this.configService.get<string>('JWT_SECRET'),
+          expiresIn: this.configService.get<string>('JWT_EXPIRES_IN'),
         },
       ),
       this.jwtService.signAsync(
@@ -74,8 +80,8 @@ export class AuthService {
           username,
         },
         {
-          secret: this.configService.get<string>("JWT_REFRESH_SECRET"),
-          expiresIn: this.configService.get<string>("JWT_REFRESH_EXPIRES_IN"),
+          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+          expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
         },
       ),
     ]);
