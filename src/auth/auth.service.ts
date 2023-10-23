@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
@@ -8,6 +8,7 @@ import {
   comparePassword,
   hashPassword,
 } from 'src/shared/helpers/password.helper';
+import { RESPONSE_MESSAGES } from 'src/shared/constants/responseMessages.constant';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +26,11 @@ export class AuthService {
       createUserDto.username,
     );
     if (userExists) {
-      throw new BadRequestException('User already exists');
+      return {
+        status: HttpStatus.BAD_REQUEST,
+        message: 'User already exists',
+        error: ['User already exists'],
+      };
     }
 
     // Hash password
@@ -44,8 +49,14 @@ export class AuthService {
     const user = await this.usersService.findByUsername(data.username);
     if (!user) throw new BadRequestException('User does not exist');
     const passwordMatches = await comparePassword(data.password, user.password);
-    if (!passwordMatches)
-      throw new BadRequestException('Password is incorrect');
+    if (!passwordMatches) {
+      return {
+        status: HttpStatus.BAD_REQUEST,
+        message: RESPONSE_MESSAGES.AUTH.InvalidPassword,
+        error: [RESPONSE_MESSAGES.AUTH.InvalidPassword],
+      };
+    }
+    // throw new BadRequestException('Password is incorrect');
     const tokens = await this.getTokens(user._id, user.username);
     await this.updateRefreshToken(user._id, tokens.refreshToken);
     return tokens;
