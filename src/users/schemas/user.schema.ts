@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { nanoid } from 'nanoid';
-
+import { Timestamp } from 'src/shared/schema/Meta.schema';
 export type UserDocument = User & Document;
 
 @Schema()
-export class User {
+export class User extends Timestamp {
   @Prop({ default: nanoid() })
   _id: string;
 
