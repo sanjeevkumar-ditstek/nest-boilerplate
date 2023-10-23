@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
@@ -28,8 +28,8 @@ export class AuthService {
     if (userExists) {
       return {
         status: HttpStatus.BAD_REQUEST,
-        message: 'User already exists',
-        error: ['User already exists'],
+        message: RESPONSE_MESSAGES.USER.UserAlreadyExists,
+        error: [RESPONSE_MESSAGES.USER.UserAlreadyExists],
       };
     }
 
@@ -47,7 +47,13 @@ export class AuthService {
   async signIn(data: AuthDto) {
     // Check if user exists
     const user = await this.usersService.findByUsername(data.username);
-    if (!user) throw new BadRequestException('User does not exist');
+    if (!user)
+      return {
+        status: HttpStatus.BAD_REQUEST,
+        message: RESPONSE_MESSAGES.AUTH.InvalidCredentials,
+        error: [RESPONSE_MESSAGES.AUTH.InvalidCredentials],
+      };
+
     const passwordMatches = await comparePassword(data.password, user.password);
     if (!passwordMatches) {
       return {

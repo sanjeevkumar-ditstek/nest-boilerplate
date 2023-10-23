@@ -28,5 +28,6 @@ export const RESPONSE_MESSAGES = {
     UserUpdated: 'UserUpdated',
     UserDisabled: 'UserDisabled',
     UserEnabled: 'UserEnabled',
+    UserAlreadyExists: 'UserAlreadyExists',
   },
 };
