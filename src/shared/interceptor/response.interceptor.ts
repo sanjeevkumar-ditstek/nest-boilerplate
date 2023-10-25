@@ -36,6 +36,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
         if (!result.status) {
           result.status = HttpStatus.OK;
         }
+        result._time = new Date();
         response.status(result.status);
         return result;
       }),

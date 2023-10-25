@@ -1,7 +1,16 @@
 import { AuthService } from './auth.service';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AuthGuard } from './auth.guard';
-import { Body, Controller, Get, Post, Req, Request } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Request,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AuthDto } from './dto/auth.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 interface IRequest extends Request {
@@ -10,15 +19,20 @@ interface IRequest extends Request {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  private authService;
+  constructor(service: AuthService) {
+    this.authService = service;
+  }
 
   @Post('signup')
+  @UsePipes(new ValidationPipe())
   signup(@Body() createUserDto: CreateUserDto) {
     return this.authService.signUp(createUserDto);
   }
 
   @Post('login')
-  signn(@Body() data: AuthDto) {
+  @UsePipes(new ValidationPipe())
+  signin(@Body() data: AuthDto) {
     return this.authService.signIn(data);
   }
 

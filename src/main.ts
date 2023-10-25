@@ -6,6 +6,7 @@ import { transports, format } from 'winston';
 import 'winston-daily-rotate-file';
 import { ResponseInterceptor } from './shared/interceptor/response.interceptor';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const logger = WinstonModule.createLogger({
@@ -45,15 +46,18 @@ async function bootstrap() {
   });
   app.use(helmet());
   app.enableCors();
+  app.setGlobalPrefix('api');
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
   const config = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
+    .setTitle('Sample')
+    .setDescription('The Sample API description')
     .setVersion('1.0')
-    .addTag('cats')
+    .addTag('Sample')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   app.useGlobalInterceptors(new ResponseInterceptor());
+
   await app.listen(3000);
 }
 bootstrap();
